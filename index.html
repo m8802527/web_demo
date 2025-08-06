@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI光構師 - 相機測試</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+    }
+    #controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 10px 20px;
+      border-radius: 12px;
+      z-index: 9999;
+    }
+    #controls button {
+      color: white;
+      background-color: #007bff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <video id="video" autoplay muted playsinline></video>
+
+  <div id="controls">
+    <button onclick="startCamera()">啟動相機</button>
+    <button onclick="takePicture()">拍照</button>
+    <button onclick="downloadPhoto()">下載</button>
+  </div>
+
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <script>
+    let video = document.getElementById("video");
+    let canvas = document.getElementById("canvas");
+    let context = canvas.getContext("2d");
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (error) {
+        alert("⚠️ 找不到可用的相機設備，請確認：\n- 裝置是否有鏡頭\n- 是否被其他應用程式佔用\n- 是否已授權瀏覽器使用相機");
+      }
+    }
+
+    function takePicture() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
+
+    function downloadPhoto() {
+      const link = document.createElement("a");
+      link.download = "photo.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+  </script>
+</body>
+</html>
